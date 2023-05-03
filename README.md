@@ -1,6 +1,9 @@
 # Protein Chain Generator for Periodic Boundary Conditions
 
-This script is a self-avoiding random walker that generates protein chains within a target volume at a specified density. It was used in the paper ["How Does Gecko Keratin Stick to Hydrophilic and Hydrophobic Surfaces in the Presence and Absence of Water? An Atomistic Molecular Dynamics Investigation"](https://pubs.acs.org/doi/full/10.1021/acsnano.2c08627).
+## Technology Highlights:
+SAPGenPBC is a Python-based project that employs backtracking, vectorization, and periodic boundary conditions to generate non-overlapping protein chains within a periodic box up to a target density using the PDB format. It effectively leverages NumPy's capabilities for efficient computation and offers a modular design for easy maintenance and adaptability. This project was necessary to achieve the interdisciplinary approach in ["How Does Gecko Keratin Stick to Hydrophilic and Hydrophobic Surfaces in the Presence and Absence of Water? An Atomistic Molecular Dynamics Investigation"](https://pubs.acs.org/doi/full/10.1021/acsnano.2c08627).
+
+Backtracking systematically explores alternative conformations when clashes between atoms are detected. By going back to previous residues and trying different angles, the script balances between global and local search.
 
 ## Why a Random Walker Can Be Used for Some Protein Sequences
 
@@ -12,13 +15,13 @@ The script generates a specified number of protein chains in a periodic box base
 
 ## Inputs
 
--Protein sequence: a string containing the protein sequence (one-letter code)
--Box dimensions: float values for the box dimensions in Angstroms (xmax, ymax, zmax)
--Density: float value for the protein density in g/cm^3
+- Protein sequence: a string containing the protein sequence (one-letter code)
+- Box dimensions: float values for the box dimensions in Angstroms (xmax, ymax, zmax)
+- Density: float value for the protein density in g/cm^3
 
 ## Outputs
 
--Protein chains in PDB format files named ChainX.pdb, where X is the chain number
+- Protein chains in PDB format files named ChainX.pdb, where X is the chain number
 
 ## Dependencies
 
