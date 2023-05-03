@@ -191,17 +191,28 @@ def Add_chain(sequence, box_vals):
             pbc_coords = Periodic(coords)
             pbc.append(pbc_coords)
 
-            # Check if any atoms in the new residue are too close to atoms in other chains or 
-            # earlier residues within the same chain
-            for c in all_chains_position_list:
-                if np.linalg.norm((pbc_coords-c)) < inter_cutoff:
+        for pbc_coords in np.array(pbc):
+            # Check if any atoms in the new residue are too close to atoms in earlier residues 
+            # within the same chain or in other chains
+            overlap = 0
+            if overlap == 0:
+                intra_chain_coords = np.array(active_chain[-(residue_length_dict[sequence[i-1]]-3)])
+                intra_chain_distances = np.linalg.norm(pbc_coords - intra_chain_coords[:, np.newaxis], axis=1)
+                if np.any(intra_chain_distances < intra_cutoff):
+                        ver_list.append(False)
+                        overlap = 1
+            if overlap == 0:
+                early_intra_chain_coords = np.array(active_chain[:(length-residue_length_dict[sequence[i-1]]+2)])
+                early_intra_chain_distances = np.linalg.norm(pbc_coords - early_intra_chain_coords[:, np.newaxis], axis=-1)
+                if np.any(early_intra_chain_distances < intra_cutoff):
                     ver_list.append(False)
-            for g in active_chain[:(length-residue_length_dict[sequence[i-1]]+2)]:
-                if np.linalg.norm((pbc_coords-g)) < intra_cutoff:
+                    overlap = 1
+            if overlap == 0:
+                inter_chain_coords = np.array(all_chains_position_list)
+                inter_chain_distances = np.linalg.norm(pbc_coords - inter_chain_coords[:, np.newaxis], axis=-1)
+                if np.any(inter_chain_distances < inter_cutoff):
                     ver_list.append(False)
-            for g in active_chain[-(residue_length_dict[sequence[i-1]]-3)]:
-                if np.linalg.norm((pbc_coords-g)) < intra_cutoff:
-                    ver_list.append(False)
+                    overlap = 1
 
         max_backtrack = 10
         def backtrack_n_residues(n):
@@ -224,8 +235,6 @@ def Add_chain(sequence, box_vals):
                 angles_list=angles_list[:i] 
             elif tries > 25 and tries <= 100 and i > backtrack and backtrack <= max_backtrack:
                 # Backtracking: systematically go back different numbers of residues
-                print("backtrack")
-                print(i, backtrack)
                 backtrack_n_residues(backtrack)
                 tries = 0
                 backtrack += 1
@@ -242,13 +251,14 @@ def Add_chain(sequence, box_vals):
             active_chain.extend(pbc)
             i += 1
             angles_list.append([geo.psi_im1, geo.omega, geo.phi])
+            backtrack = 0
     return active_chain, Structure
 
 all_chains_position_list=[]
-for m in range(1,ngenchains+1):
+for m in range(1, ngenchains + 1):
     # Generate a new protein chain and save its structure to a PDB file
     pdb_output = Bio.PDB.PDBIO()
-    pdb_file_name = str("Chain" +str(m)+ ".pdb")
+    pdb_file_name = str("Chain" + str(m) + ".pdb")
     boxvals = [0,xmax,0,ymax,0,zmax]
 
     new_peptide_coordinates, peptide_structure_new_chain = Add_chain(sequence, boxvals)
@@ -258,4 +268,4 @@ for m in range(1,ngenchains+1):
     pdb_output.save(pdb_file_name)
     for b in new_peptide_coordinates:
         all_chains_position_list.append(b)
-    print('done',m)
+    print("Done", m)
