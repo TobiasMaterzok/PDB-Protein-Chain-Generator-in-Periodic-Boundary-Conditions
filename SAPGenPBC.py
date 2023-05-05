@@ -59,7 +59,7 @@ molarmass={'M': 149.2,'S': 105.1,'C': 121.2,'P': 115.1,'A': 89.1,'T': 119.1,'K':
 # Calculate the total molar mass of the protein sequence and convert it to mass in grams
 mass = sum(molarmass[aa] for aa in sequence) / NA
 
-# Estimate the number of protein chains needed to achieve the desired mass density
+# Estimate the *natural* number of protein chains needed to achieve the desired mass density
 while True:
     volume = xmax * ymax * zmax
     # Convert the volume to cubic centimeters
