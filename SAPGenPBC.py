@@ -2,6 +2,7 @@
 Self-Avoiding Protein Chain Generator in Periodic Boundary Conditions (SAPGenPBC)
 
 Author: Tobias Materzok https://github.com/TobiasMaterzok/
+        Annabelle Canestraight
 
 This script generates a number of protein chains in a periodic box based on the provided
 protein sequence, the box dimensions and the target density value. The protein chains are 
