@@ -1,5 +1,7 @@
 # Protein Chain Generator for Periodic Boundary Conditions
 
+![SAPGen](SAPGen.jpg?raw=true "SAPGen")
+
 ## Technology Highlights:
 SAPGenPBC is a Python-based project that employs backtracking, vectorization, and periodic boundary conditions to generate non-overlapping protein chains within a periodic box up to a target density using the PDB format. Backtracking systematically explores alternative conformations when clashes between atoms are detected. By going back to previous residues and trying different angles, the script balances between global and local search. It effectively leverages NumPy's capabilities for efficient computation and offers a modular design for easy maintenance and adaptability. 
 The automation via bash/shell scripts accelerates convergence via running N generator jobs in parallel, continuously monitoring their progress, and stopping the remaining jobs when one finishes. 
