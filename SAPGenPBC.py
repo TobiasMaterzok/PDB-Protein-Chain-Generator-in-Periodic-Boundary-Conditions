@@ -4,7 +4,7 @@ Self-Avoiding Protein Chain Generator in Periodic Boundary Conditions (SAPGenPBC
 Author: Tobias Materzok https://github.com/TobiasMaterzok/
         Annabelle Canestraight
 
-This script generates a number of protein chains in a periodic box based on the provided
+This script generates a number of non-overlapping protein chains in a periodic box based on the provided
 protein sequence, the box dimensions and the target density value. The protein chains are 
 generated with random coordinates and dihedral angles, and their positions are adjusted
 according to the periodic boundary conditions to not overlap with each other.
@@ -27,6 +27,9 @@ Usage:
     Example: python protein_chain_generator.py MSCCPPSCA 50 50 50 1.3
 
 Note: This script may take some time to run, depending on the input parameters.
+For parallelization and automation, use the accompanying script
+run_generators_and_concatenate_pdbs.sh, which starts multiple generator jobs, monitors progress,
+and concatenates PDB files upon completion.
 """
 
 import sys 
