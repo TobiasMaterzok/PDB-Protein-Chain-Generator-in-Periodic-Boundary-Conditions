@@ -3,7 +3,7 @@
 ![SAPGen](SAPGen.jpg?raw=true "SAPGen")
 
 ## Technology Highlights:
-SAPGenPBC is a Python-based project that employs backtracking, vectorization, and periodic boundary conditions to generate non-overlapping protein chains within a periodic box up to a target density using the PDB format. Backtracking systematically explores alternative conformations when clashes between atoms are detected. By going back to previous residues and trying different angles, the script balances between global and local search. It effectively leverages NumPy's capabilities for efficient computation and offers a modular design for easy maintenance and adaptability. 
+SAPGenPBC is a Python-based project that employs backtracking, vectorization, and periodic boundary conditions to generate non-overlapping protein chains within a periodic box up to a target density - Outputing in the PDB format. Backtracking systematically explores alternative conformations when clashes between atoms are detected. By going back to previous residues and trying different angles, the code is able to balance between global and local search. It effectively leverages NumPy's capabilities for efficient computation and offers a modular design for easy maintenance and adaptability. 
 The automation via bash/shell scripts accelerates convergence via running N generator jobs in parallel, continuously monitoring their progress, and stopping the remaining jobs when one finishes. 
 
 This project was necessary to achieve the interdisciplinary approach in ["How Does Gecko Keratin Stick to Hydrophilic and Hydrophobic Surfaces in the Presence and Absence of Water? An Atomistic Molecular Dynamics Investigation"](https://pubs.acs.org/doi/full/10.1021/acsnano.2c08627).
@@ -16,7 +16,7 @@ In the context of the gecko keratin study, the Ge-cprp-9 protein, particularly i
 
 ### SAPGenPBC.py
 
-This python tool generates a specified number of protein chains in a periodic box based on the provided protein sequence and density value. The protein chains are generated with random coordinates and dihedral angles, and their positions are adjusted according to the periodic boundary conditions.
+This python tool generates a specified number of protein chains in a periodic box based on the provided protein sequence and density value. The protein chains are generated with random coordinates and dihedral angles, and without overlaps (self-avoiding) according to the periodic boundary conditions.
 
 ### run_generators_and_concatenate_pdbs.sh
 
@@ -40,7 +40,7 @@ This script concatenates multiple PDB files into a single PDB file with the give
 ## Dependencies
 
 - Python 3.x
-- numpy
+- NumPy
 - BioPython
 - PeptideBuilder
 
