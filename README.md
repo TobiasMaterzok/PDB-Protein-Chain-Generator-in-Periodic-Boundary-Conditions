@@ -6,7 +6,10 @@
 SAPGenPBC is a Python-based project that employs backtracking, vectorization, and periodic boundary conditions to generate non-overlapping protein chains within a periodic box up to a target density - Outputing in the PDB format. Backtracking systematically explores alternative conformations when clashes between atoms are detected. By going back to previous residues and trying different angles, the code is able to balance between global and local search. It effectively leverages NumPy's capabilities for efficient computation and offers a modular design for easy maintenance and adaptability. 
 The automation via bash/shell scripts accelerates convergence via running N generator jobs in parallel, continuously monitoring their progress, and stopping the remaining jobs when one finishes. 
 
-This project was necessary to achieve the interdisciplinary approach in ["How Does Gecko Keratin Stick to Hydrophilic and Hydrophobic Surfaces in the Presence and Absence of Water? An Atomistic Molecular Dynamics Investigation"](https://pubs.acs.org/doi/full/10.1021/acsnano.2c08627).
+### If you use SAPGenPBC in your work, please cite the following paper:
+
+Materzok, T.; Canestraight, A.; Gorb, S.; Müller-Plathe, F. ["How Does Gecko Keratin Stick to Hydrophilic and Hydrophobic Surfaces in the Presence and Absence of Water? An Atomistic Molecular Dynamics Investigation"](https://doi.org/10.1021/acsnano.2c08627). ACS Nano 2022, 16 (11), 19261–19270.
+
 
 ## Why a Random Walker Can Be Used for Some Protein Sequences
 
