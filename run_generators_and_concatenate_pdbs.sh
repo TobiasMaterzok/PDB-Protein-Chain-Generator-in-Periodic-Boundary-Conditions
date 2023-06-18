@@ -12,6 +12,7 @@
 # Usage: ./run_generators_and_concatenate_pdbs.sh SEQUENCE BOX_X BOX_Y BOX_Z DENSITY
 #
 # Input:
+# - CORE_NUMBER: Number of cores to run the generator in parallel on
 # - SEQUENCE: The protein sequence which will be filled into the pbc box
 # - BOX_X, BOX_Y, BOX_Z: The dimensions of the box for the SAPGenPBC.py script
 # - DENSITY: The target density to which SAPGenPBC.py fills the box with chains
@@ -21,14 +22,15 @@
 
 tools=~/tools_ua_gecko/
 
-sequence=$1
-box_x=$2
-box_y=$3
-box_z=$4
-density=$5
+core_number=$1
+sequence=$2
+box_x=$3
+box_y=$4
+box_z=$5
+density=$6
 
 # Start 48 generator jobs in parallel
-for i in $(seq 1 1 48)
+for i in $(seq 1 1 $core_number)
 do
     mkdir uniform_"$i"
     cd uniform_"$i"
@@ -44,7 +46,7 @@ finished=0
 generator_id=0
 while [ $finished -eq 0 ]
 do
-    for i in $(seq 1 1 48)
+    for i in $(seq 1 1 $core_number)
     do
         # If the generator job with process ID ${pid[$i]} is not running, it has finished
         if ! kill -0 ${pid[$i]} 2>/dev/null; then
@@ -57,7 +59,7 @@ do
 done
 
 # Stop other generators and delete their directories
-for j in $(seq 1 1 48)
+for j in $(seq 1 1 $core_number)
 do
     if [ $j -ne $generator_id ]; then
     echo "kill $j"

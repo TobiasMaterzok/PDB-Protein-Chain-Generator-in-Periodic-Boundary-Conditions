@@ -31,6 +31,7 @@ This script concatenates multiple PDB files into a single PDB file with the give
 
 ## Inputs
 
+- Number of cores to run the generator in parallel on
 - Protein sequence: a string containing the protein sequence (one-letter code)
 - Box dimensions: float values for the box dimensions in Angstroms (xmax, ymax, zmax)
 - Density: float value for the protein density in g/cm^3
@@ -60,24 +61,24 @@ pip install numpy biopython PeptideBuilder
 3. To run the generator embarrassingly parallel, navigate to an empty directory and run
 
 ```
-~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh SEQUENCE BOX_X BOX_Y BOX_Z DENSITY
+~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh CORE_NUMBER SEQUENCE BOX_X BOX_Y BOX_Z DENSITY
 ```
 
-Example (7x7x7 nm at 1.3 g cm^-3 density):
+Example (7x7x7 nm at 1.3 g cm^-3 density on 48 cores):
 ```
-~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh MSCCPPSCA 70 70 70 1.3
+~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh 48 MSCCPPSCA 70 70 70 1.3
 ```
 
 1.B. Run the generator with the following command line arguments:
 
 ```
-python SAPGenPBC.py <sequence> <xmax> <ymax> <zmax> <dens>
+python SAPGenPBC.py <core_number> <sequence> <xmax> <ymax> <zmax> <dens>
 ```
 
 Example:
 
 ```
-python SAPGenPBC.py MSCCPPSCA 70 70 70 1.3
+python SAPGenPBC.py 48 MSCCPPSCA 70 70 70 1.3
 ```
 
 Note: This script may take some time to run, depending on the input parameters.
