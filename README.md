@@ -50,26 +50,31 @@ This script concatenates multiple PDB files into a single PDB file with the give
 
 ## Usage
 
-1. Ensure that you have the required Python packages installed:
+1. Download the repository: The files assume that this command is run in the home directory
+
+```
+cd ~
+git clone https://github.com/TobiasMaterzok/PDB-Protein-Chain-Generator-in-Periodic-Boundary-Conditions
+```
+
+2. Ensure that you have the required Python packages installed:
 
 ```
 pip install numpy biopython PeptideBuilder
 ```
 
-2. Copy the files into ~/tools_ua_gecko/
-
-3. To run the generator embarrassingly parallel, navigate to an empty directory and run
+3. To run the generator embarrassingly parallel and find a solution fast, navigate to an empty directory and run
 
 ```
-~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh CORE_NUMBER SEQUENCE BOX_X BOX_Y BOX_Z DENSITY
+~/PDB-Protein-Chain-Generator-in-Periodic-Boundary-Conditions/run_generators_and_concatenate_pdbs.sh CORE_NUMBER SEQUENCE BOX_X BOX_Y BOX_Z DENSITY
 ```
 
 Example (7x7x7 nm at 1.3 g cm^-3 density on 48 cores):
 ```
-~/tools_ua_gecko/run_generators_and_concatenate_pdbs.sh 48 MSCCPPSCA 70 70 70 1.3
+~/PDB-Protein-Chain-Generator-in-Periodic-Boundary-Conditions/run_generators_and_concatenate_pdbs.sh 48 MSCCPPSCA 70 70 70 1.3
 ```
 
-1.B. Run the generator with the following command line arguments:
+3.B. You can also run the generator with the following command line arguments:
 
 ```
 python SAPGenPBC.py <core_number> <sequence> <xmax> <ymax> <zmax> <dens>
@@ -81,7 +86,7 @@ Example:
 python SAPGenPBC.py 48 MSCCPPSCA 70 70 70 1.3
 ```
 
-Note: This script may take some time to run, depending on the input parameters.
+Note: This script may take some time to run, depending on the input parameters. It is recommended to use the run_generators_and_concatenate_pdbs.sh wrapper.
 
 ## License
 

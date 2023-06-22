@@ -20,7 +20,7 @@
 # Output: all.pdb - the final concatenated PDB file
 #
 
-tools=~/tools_ua_gecko/
+tools=~/PDB-Protein-Chain-Generator-in-Periodic-Boundary-Conditions
 
 core_number=$1
 sequence=$2
