@@ -36,7 +36,7 @@ echo "CRYST1  "$boxlenx".000  "$boxleny".000  "$boxlenz".000  90.00  90.00  90.0
 echo "MODEL        1" >> all.pdb
 
 # Iterate over the PDB files to be concatenated
-for i in `seq 1 1 $N`
+for i in $(seq 1 1 $N)
 do
 	# Remove the last line (which is usually "END") from each PDB file and append the remaining lines to the all.pdb file
 	head -n -1 "$cname""$i".pdb >> all.pdb

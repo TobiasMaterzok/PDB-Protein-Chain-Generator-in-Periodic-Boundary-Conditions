@@ -109,7 +109,8 @@ while True:
 
 def Periodic(coordz):
     box_dimensions = np.array([xmax, ymax, zmax])
-    pbc_coordz = np.mod(coordz, box_dimensions)
+    shift = np.floor(coordz / box_dimensions) * box_dimensions
+    pbc_coordz = (coordz - shift) % box_dimensions
     return pbc_coordz
 
 def get_rnd_coord(box_vals):
@@ -118,6 +119,74 @@ def get_rnd_coord(box_vals):
 
 def get_rnd_degree():
     return random.uniform(-180,180)
+
+def get_rnd_phi():
+    # Define distributions for common regions of Ramachandran plot
+    dist1 = np.random.uniform(-180, 180)  # Uniform distribution for loops
+    dist2 = np.random.normal(-57, 25)  # Right-handed alpha helix
+    dist3 = np.random.normal(57, 25)  # Left-handed alpha helix
+    dist4 = np.random.normal(-119, 25)  # Beta sheet
+    # Use random.choices to pick from the distributions
+    phi = random.choices([dist1, dist2, dist3, dist4], weights=[0.8, 0.05, 0.05, 0.05], k=1)[0]
+    return phi
+
+def get_rnd_psi():
+    # Define distributions for common regions of Ramachandran plot
+    dist1 = np.random.uniform(-180, 180)  # Uniform distribution for loops
+    dist2 = np.random.normal(-47, 25)  # Right-handed alpha helix
+    dist3 = np.random.normal(47, 25)  # Left-handed alpha helix
+    dist4 = np.random.normal(113, 25)  # Beta sheet
+    # Use random.choices to pick from the distributions
+    psi = random.choices([dist1, dist2, dist3, dist4], weights=[0.8, 0.05, 0.05, 0.05], k=1)[0]
+    return psi
+
+def get_rnd_omega():
+    # For omega, most will still be trans but assign a slightly higher chance for cis
+    dist1 = random.uniform(-180, 180)  # Uniform distribution
+    dist2 = np.random.normal(180, 10)  # Normal distribution focused around 180
+    dist3 = np.random.normal(0, 10)  # Normal distribution focused around 0
+    omega = random.choices([dist1, dist2, dist3], weights=[0.05, 0.9, 0.05], k=1)[0]  
+    return omega
+
+def is_allowed_in_idps_v8(psi, phi, residue_type):
+    # Define the regions
+    # Each region is a dictionary with a name, a phi range and a psi range.
+    regions = [
+        {'name': 'glycine', 'phi_range': (-180, 180), 'psi_range': (-180, 180), 'applicable_residues': ['G']},
+        {'name': 'proline', 'phi_range': (-90, -60), 'psi_range': (120, 180), 'applicable_residues': ['P']},
+        {'name': 'avoid_1', 'phi_range': (-8, 8), 'psi_range': (-5, 5)},
+        {'name': 'avoid_2', 'phi_range': (-8, 8)},
+        {'name': 'avoid_3', 'phi_range': (-185, -175), 'psi_range': (-185, -175)},
+        {'name': 'avoid_4', 'phi_range': (175, 185), 'psi_range': (175, 185)},
+    ]
+
+    # Iterate through the regions
+    for region in regions:
+        # Extract the phi range
+        phi_min, phi_max = region['phi_range']
+
+        # Check if the current residue type applies to this region
+        applies_to_current_residue = 'applicable_residues' in region and residue_type in region['applicable_residues']
+        # If we're in an avoid region or a region specific to this residue type,
+        # check if the phi value falls within the region
+        if ('avoid' in region['name'] or applies_to_current_residue) and phi_min <= phi <= phi_max:
+            # If there's a psi range, also check the psi value
+            if 'psi_range' in region:
+                psi_min, psi_max = region['psi_range']
+                if not psi_min <= psi <= psi_max:
+                    continue  # If the psi value doesn't match, continue to the next region
+            return 'avoid' not in region['name']
+
+    # If we haven't returned by now, we're not in an avoid region or a residue-specific region
+    return True
+
+def generate_psi_phi(residue_type):
+    psi = get_rnd_psi()
+    phi = get_rnd_phi()
+    while not is_allowed_in_idps_v8(psi, phi, residue_type):
+        psi = get_rnd_psi()
+        phi = get_rnd_phi()
+    return psi, phi
 
 # Function to create a partial protein chain from already existing angles and positions
 def rebuild(i, angles_list, rand_coord):
@@ -158,12 +227,15 @@ def Add_chain(sequence, box_vals):
     angles_list, active_chain = [], []
     rand_coord = get_rnd_coord(box_vals)
 
-    def generate_random_angles(geo):
-        geo.psi_im1, geo.omega, geo.phi = get_rnd_degree(), get_rnd_degree(), get_rnd_degree()
+    def generate_random_angles(geo, amino_acid):
+        psi, phi = generate_psi_phi(amino_acid)
+        omega = get_rnd_omega()
+        geo.psi_im1, geo.omega, geo.phi = psi, omega, phi
+
 
     # Initialize the first residue of the protein chain with random angles and random coordinates
     geo = Geometry.geometry(sequence[0])
-    generate_random_angles(geo)
+    generate_random_angles(geo, sequence[0])
     angles_list.append([geo.psi_im1, geo.omega, geo.phi])
     Structure = PeptideBuilder.initialize_res(geo)
 
@@ -179,12 +251,12 @@ def Add_chain(sequence, box_vals):
     # Iterate through the remaining residues in the sequence
     while i < len(sequence) and iteration < maxiter:
         geo = Geometry.geometry(sequence[i])
-        generate_random_angles(geo)
+        generate_random_angles(geo, sequence[i])
 
         # Add the residue with random angles
         Structure = PeptideBuilder.add_residue(Structure, geo)
         chain = Structure[0]['A']
-        residue, ver_list = chain[i+1], []
+        residue = chain[i+1]
         length = len(active_chain)
         iteration += 1
 
@@ -203,20 +275,20 @@ def Add_chain(sequence, box_vals):
                 intra_chain_coords = np.array(active_chain[-(residue_length_dict[sequence[i-1]]-3)])
                 intra_chain_distances = np.linalg.norm(pbc_coords - intra_chain_coords[:, np.newaxis], axis=1)
                 if np.any(intra_chain_distances < intra_cutoff):
-                        ver_list.append(False)
                         overlap = 1
+                        break
             if overlap == 0:
                 early_intra_chain_coords = np.array(active_chain[:(length-residue_length_dict[sequence[i-1]]+2)])
                 early_intra_chain_distances = np.linalg.norm(pbc_coords - early_intra_chain_coords[:, np.newaxis], axis=-1)
                 if np.any(early_intra_chain_distances < intra_cutoff):
-                    ver_list.append(False)
                     overlap = 1
+                    break
             if overlap == 0:
                 inter_chain_coords = np.array(all_chains_position_list)
                 inter_chain_distances = np.linalg.norm(pbc_coords - inter_chain_coords[:, np.newaxis], axis=-1)
                 if np.any(inter_chain_distances < inter_cutoff):
-                    ver_list.append(False)
                     overlap = 1
+                    break
 
         max_backtrack = 10
         def backtrack_n_residues(n):
@@ -226,7 +298,7 @@ def Add_chain(sequence, box_vals):
             angles_list = angles_list[:i]        
 
         # If the new residue clashes with other atoms, try different positions or backtrack to a previous residue
-        if False in ver_list:
+        if overlap == 1:
             tries += 1
             if tries <= 25:
                 Structure, active_chain = rebuild(i, angles_list, rand_coord)
