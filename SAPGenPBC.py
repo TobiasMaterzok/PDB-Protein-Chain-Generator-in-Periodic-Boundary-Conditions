@@ -127,7 +127,7 @@ def get_rnd_phi():
     dist3 = np.random.normal(57, 25)  # Left-handed alpha helix
     dist4 = np.random.normal(-119, 25)  # Beta sheet
     # Use random.choices to pick from the distributions
-    phi = random.choices([dist1, dist2, dist3, dist4], weights=[0.8, 0.05, 0.05, 0.05], k=1)[0]
+    phi = random.choices([dist1, dist2, dist3, dist4], weights=[0.7, 0.1, 0.1, 0.1], k=1)[0]
     return phi
 
 def get_rnd_psi():
@@ -137,7 +137,7 @@ def get_rnd_psi():
     dist3 = np.random.normal(47, 25)  # Left-handed alpha helix
     dist4 = np.random.normal(113, 25)  # Beta sheet
     # Use random.choices to pick from the distributions
-    psi = random.choices([dist1, dist2, dist3, dist4], weights=[0.8, 0.05, 0.05, 0.05], k=1)[0]
+    psi = random.choices([dist1, dist2, dist3, dist4], weights=[0.7, 0.1, 0.1, 0.1], k=1)[0]
     return psi
 
 def get_rnd_omega():
@@ -148,42 +148,57 @@ def get_rnd_omega():
     omega = random.choices([dist1, dist2, dist3], weights=[0.05, 0.9, 0.05], k=1)[0]  
     return omega
 
-def is_allowed_in_idps_v8(psi, phi, residue_type):
-    # Define the regions
-    # Each region is a dictionary with a name, a phi range and a psi range.
+def get_rnd_phi_psi_proline():
+    phi = np.random.uniform(-120, -40)  
+    psi = np.random.uniform(-60, 180)
+    return phi, psi
+
+def is_allowed_in_idps_v10(psi, phi, residue_type):
     regions = [
+        {'name': 'proline', 'phi_range': (-120, -40), 'psi_range': (-60, 180), 'applicable_residues': ['P']},
         {'name': 'glycine', 'phi_range': (-180, 180), 'psi_range': (-180, 180), 'applicable_residues': ['G']},
-        {'name': 'proline', 'phi_range': (-90, -60), 'psi_range': (120, 180), 'applicable_residues': ['P']},
         {'name': 'avoid_1', 'phi_range': (-8, 8), 'psi_range': (-5, 5)},
         {'name': 'avoid_2', 'phi_range': (-8, 8)},
-        {'name': 'avoid_3', 'phi_range': (-185, -175), 'psi_range': (-185, -175)},
-        {'name': 'avoid_4', 'phi_range': (175, 185), 'psi_range': (175, 185)},
+        {'name': 'avoid_2', 'phi_range': (-185, -175)},
+        {'name': 'avoid_2', 'phi_range': (175, 185)},
+        {'name': 'avoid_4', 'phi_range': (166, 185), 'psi_range': (166, 185)},
     ]
-
-    # Iterate through the regions
-    for region in regions:
-        # Extract the phi range
+    
+    if residue_type == "P":
+        region = regions[0]
         phi_min, phi_max = region['phi_range']
+        if phi_min <= phi <= phi_max:
+            psi_min, psi_max = region['psi_range']
+            if psi_min <= psi <= psi_max:
+                return True
+            else:
+                return False
+        else:
+            return False
+    elif residue_type == "G":
+        return True
+    else:
+        for region in regions:
+            if 'avoid' in region['name']:
+                phi_min, phi_max = region['phi_range']
+                if phi_min <= phi <= phi_max:
+                    # If there's a psi range, also check the psi value
+                    if 'psi_range' in region:
+                        psi_min, psi_max = region['psi_range']
+                        if psi_min <= psi <= psi_max:
+                            return False
+                    else:
+                        return False
+        return True
 
-        # Check if the current residue type applies to this region
-        applies_to_current_residue = 'applicable_residues' in region and residue_type in region['applicable_residues']
-        # If we're in an avoid region or a region specific to this residue type,
-        # check if the phi value falls within the region
-        if ('avoid' in region['name'] or applies_to_current_residue) and phi_min <= phi <= phi_max:
-            # If there's a psi range, also check the psi value
-            if 'psi_range' in region:
-                psi_min, psi_max = region['psi_range']
-                if not psi_min <= psi <= psi_max:
-                    continue  # If the psi value doesn't match, continue to the next region
-            return 'avoid' not in region['name']
-
-    # If we haven't returned by now, we're not in an avoid region or a residue-specific region
-    return True
 
 def generate_psi_phi(residue_type):
-    psi = get_rnd_psi()
-    phi = get_rnd_phi()
-    while not is_allowed_in_idps_v8(psi, phi, residue_type):
+    if residue_type == "P":
+        phi, psi = get_rnd_phi_psi_proline()
+    else:
+        psi = get_rnd_psi()
+        phi = get_rnd_phi()
+    while not is_allowed_in_idps_v10(psi, phi, residue_type):
         psi = get_rnd_psi()
         phi = get_rnd_phi()
     return psi, phi
